@@ -1,6 +1,26 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 
+const downloadMessageAsPDF = (content, index) => {
+    const element = document.createElement('div');
+    element.innerHTML = content;
+    element.style.padding = '10px';
+    element.style.backgroundColor = '#0c0c1d';
+    element.style.color = '#e2e8f0';
+    element.style.fontFamily = 'sans-serif';
+    
+    html2canvas(element).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF();
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`message_${index}.pdf`);
+    });
+  };
+
 function Chat({ agentType, initialMessage, agentInitials, directQuestion }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -94,9 +114,10 @@ function Chat({ agentType, initialMessage, agentInitials, directQuestion }) {
     }
   }, [initialMessage]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  //useEffect(() => {
+   // scrollToBottom();
+  //}, [messages]);
+
     useEffect(() => {
     if (
       directQuestion &&
@@ -174,61 +195,91 @@ function Chat({ agentType, initialMessage, agentInitials, directQuestion }) {
   };
 
   return (
-    <div className="chat-container">
-      <div className="chat-messages" id={`${agentType}-messages`}>
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`message ${
-              message.isUser ? "user-message" : "agent-message"
-            }`}
-          >
-            {!message.isUser && (
-              <div className="message-avatar">
-                <div className="avatar-placeholder">
-                  {agentInitials || "AI"}
-                </div>
+  <div className="w-full h-[450px] flex flex-col bg-gray-900 rounded-lg shadow-lg border border-gray-800">
+    {/* Chat messages area */}
+    <div
+      className="flex-1 overflow-y-auto p-6"
+      id={`${agentType}-messages`}
+      style={{ minHeight: 0 }}
+    >
+      {messages.map((message, index) => (
+        <div
+          key={index}
+          className={`mb-6 flex ${message.isUser ? "justify-end" : "justify-start"}`}
+        >
+          {!message.isUser && (
+            <div className="mr-2 flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold">
+                {agentInitials || "AI"}
               </div>
-            )}
-            <div className="message-content">
+            </div>
+          )}
+          <div className="relative max-w-[70%]">
+            <div
+              className={`px-3 rounded-lg shadow-sm inline-block align-top break-words ${
+                message.isUser
+                  ? "bg-blue-600 text-white"
+                  : "bg-[#181830] text-gray-200"
+              }`}
+              style={{
+                maxWidth: "100%",
+                minWidth: "2.5rem",
+                width: "fit-content",
+                wordBreak: "break-word",
+                whiteSpace: "pre-wrap",
+              }}
+            >
               <div dangerouslySetInnerHTML={renderContent(message.content)} />
             </div>
+            {/* Download PDF button for AI messages */}
+            {!message.isUser && (
+              <button
+                className="absolute -bottom-7 right-0 text-xs bg-gray-700 text-white px-2 py-1 rounded hover:bg-gray-600 shadow-md"
+                onClick={() => downloadMessageAsPDF(message.content, index)}
+              >
+                Download
+              </button>
+            )}
           </div>
-        ))}
-        {isLoading && (
-          <div className="message agent-message">
-            <div className="message-avatar">
-              <div className="avatar-placeholder">{agentInitials || "AI"}</div>
-            </div>
-            <div className="message-content">
-              <p className="loading-dots">Thinking</p>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-      <div className="chat-input-container">
-        <div className="chat-input-group">
-          <input
-            type="text"
-            id={`${agentType}-input`}
-            className="chat-input"
-            placeholder="Type your message..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-          />
-          <button
-            id={`${agentType}-send`}
-            className="chat-send-button"
-            onClick={() => handleSendMessage()}
-          >
-            <i className="fa-solid fa-paper-plane mr-2"></i>Send
-          </button>
         </div>
+      ))}
+      {/* Loading indicator */}
+      {isLoading && (
+        <div className="flex items-start mb-4">
+          <div className="mr-2">
+            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white font-bold">
+              {agentInitials || "AI"}
+            </div>
+          </div>
+          <div className="p-3 rounded-lg shadow-sm bg-[#181830] text-gray-200">
+            <span className="loading-dots">...</span>
+          </div>
+        </div>
+      )}
+      <div ref={messagesEndRef} />
+    </div>
+    {/* Input area */}
+    <div className="p-4 bg-gray-900 border-t border-gray-800">
+      <div className="flex">
+        <input
+          type="text"
+          id={`${agentType}-input`}
+          className="p-2 flex-1 mr-2 border border-gray-700 rounded bg-[#1818340] text-gray-100"
+          placeholder="Type your message..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={handleKeyPress}
+        />
+        <button
+          id={`${agentType}-send`}
+          className="bg-blue-600 text-white rounded px-4 py-2 cursor-pointer hover:bg-blue-800 border-0"
+          onClick={() => handleSendMessage()}
+        >
+          Send
+        </button>
       </div>
     </div>
-  );
+  </div>
+);
 }
-
 export default Chat;

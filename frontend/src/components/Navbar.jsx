@@ -1,89 +1,25 @@
-import { Link, useLocation } from 'react-router';
+import { Link } from 'react-router-dom'
 
-function Navbar() {
-  const location = useLocation();
-
+export default function Navbar() {
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-      <div className="container">
-        <Link className="navbar-brand" to="/">
-          Portfolio
-        </Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${
-                  location.pathname === '/' ? 'active' : ''
-                }`}
-                to="/"
-              >
-                Home
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${
-                  location.pathname === '/projects' ? 'active' : ''
-                }`}
-                to="/projects"
-              >
-                Projects
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${
-                  location.pathname === '/career' ? 'active' : ''
-                }`}
-                to="/career"
-              >
-                Career
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${
-                  location.pathname === '/services' ? 'active' : ''
-                }`}
-                to="/services"
-              >
-                Services
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${
-                  location.pathname === '/research' ? 'active' : ''
-                }`}
-                to="/research"
-              >
-                Research
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                className={`nav-link ${
-                  location.pathname === '/contact' ? 'active' : ''
-                }`}
-                to="/contact"
-              >
-                Contact
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-  );
-}
+    <div className="navbar  bg-gray-900 shadow-sm text-gray-200 font-bold sticky top-0 z-50">
+      <div className="flex-1">
+        <h1 className="pl-4 text-[20px]">Travel Planner</h1>
 
-export default Navbar;
+      </div>
+      <div className="flex-none px-3">
+        <ul className="menu menu-horizontal text-[15px] px-2">
+          <li className="hover:bg-blue-800 hover:text-maize rounded transition-colors">
+            <Link to='/' className="hover:text-maize">Home</Link>
+          </li>
+          <li className="hover:bg-blue-800 hover:text-maize rounded transition-colors">
+            <Link to='/Destination' className="hover:text-maize">Destination Finder</Link>
+          </li>
+          <li className="hover:bg-blue-800 hover:text-maize rounded transition-colors">
+            <Link to='/Itinerary/' className="hover:text-maize">Itinerary Planner</Link>
+          </li>
+        </ul>
+      </div>
+    </div>
+  )
+}
